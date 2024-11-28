@@ -1,8 +1,8 @@
 <?php
 session_start();
-include 'db.php'; // Kết nối cơ sở dữ liệu
+include 'db.php'; 
 
-// Kiểm tra nếu người dùng đã đăng nhập
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -10,14 +10,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Xử lý form thêm thu nhập
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_income'])) {
     $income_category_id = $_POST['income_category_id'];
     $amount = $_POST['amount'];
     $income_date = $_POST['income_date'];
     $description = $_POST['description'];
 
-    // Thêm bản ghi thu nhập vào bảng income
+
     $sql = "INSERT INTO income (user_id, income_category_id, amount, income_date, description) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iisss", $user_id, $income_category_id, $amount, $income_date, $description);
@@ -29,11 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_income'])) {
     }
 
     $stmt->close();
-        // Redirect để tránh việc gửi lại form khi refresh
         header("Location: add_income.php");
     exit();
 }
-// Lấy danh sách thu nhập của người dùng cùng với tên danh mục
 $incomes = [];
 $sql = "SELECT i.income_id, ic.category_name, i.amount, i.income_date, i.description 
         FROM income i
@@ -48,7 +46,6 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// Lấy tổng thu nhập của người dùng
 $sql_total = "SELECT total_income FROM total_income WHERE user_id = ?";
 $stmt_total = $conn->prepare($sql_total);
 $stmt_total->bind_param("i", $user_id);
@@ -61,7 +58,6 @@ if ($row = $result_total->fetch_assoc()) {
 }
 
 $stmt_total->close();
-// Lấy danh sách các danh mục thu nhập
 $categories = [];
 $sql = "SELECT income_category_id, category_name FROM income_category";
 $result = $conn->query($sql);
@@ -80,7 +76,6 @@ $conn->close();
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="#">FinBud Dashboard</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,11 +113,9 @@ $conn->close();
 <div class="container mt-5">
     <h2>Add Income</h2>
 
-    <!-- Thông báo thành công hoặc lỗi khi thêm thu nhập -->
     <?php if (isset($income_success)) echo "<div class='alert alert-success'>$income_success</div>"; ?>
     <?php if (isset($income_error)) echo "<div class='alert alert-danger'>$income_error</div>"; ?>
 
-    <!-- Form thêm thu nhập -->
     <form action="add_income.php" method="post">
         <input type="hidden" name="add_income" value="1">
         <div class="form-group">
@@ -149,7 +142,6 @@ $conn->close();
         </div>
         <button type="submit" class="btn btn-primary">Add Income</button>
     </form>
-    <!-- Bảng hiển thị danh sách thu nhập và danh mục -->
     <table class="table table-bordered">
         <thead class="thead-dark">
             <tr>
@@ -178,7 +170,7 @@ $conn->close();
             <?php endif; ?>
         </tbody>
     </table>
-      <!-- Hiển thị tổng thu nhập -->
+
       <div class="alert alert-info">
         <strong>Total Income:</strong> <?php echo number_format($total_income, 2); ?>
     </div>
